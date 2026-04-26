@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гастротур по Мордовии · Вкус традиций</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf7f3;
+            color: #6c1a30;
+            line-height: 1.5;
+            padding-bottom: 32px;
+        }
+        .wrapper { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+        .hero-title {
+            width: 30%;
+            margin: 32px auto 24px auto;
+            display: block;
+        }
+        .hero-title img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .nav-sections {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(252, 247, 243, 0.92);
+            padding: 12px 0 8px 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e8dbd3;
+            backdrop-filter: blur(4px);
+        }
+        .nav-links { display: flex; gap: 40px; align-items: center; }
+        .nav-item {
+            font-size: 1.35rem; font-weight: 700;
+            color: #6c1a30; cursor: pointer;
+            padding-bottom: 10px;
+            border-bottom: 4px solid transparent;
+            transition: border-color 0.15s;
+        }
+        .nav-item.active { border-bottom: 4px solid #c62828; color: #4a1022; }
+        .nav-item:hover { border-bottom: 4px solid #b56576; }
+
+        .filters-container {
+            margin-bottom: 32px; padding: 16px 24px;
+            background: #ffffff; border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex; align-items: center;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .filter-button {
+            padding: 10px 20px; background: #fcf7f3;
+            border: 2px solid #e8dbd3; border-radius: 50px;
+            cursor: pointer; transition: all 0.3s;
+            font-size: 0.95rem; color: #6c1a30;
+            font-weight: 500; display: flex;
+            align-items: center; gap: 8px;
+            white-space: nowrap;
+        }
+        .filter-button:hover { background: #eededa; border-color: #b77f7f; }
+        .filter-button.has-value { background: #6c1a30; color: white; border-color: #6c1a30; }
+        .dropdown-menu {
+            display: none; position: absolute;
+            top: calc(100% + 8px); left: 0;
+            background: white; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            padding: 20px; min-width: 280px;
+            z-index: 1000; border: 1px solid #e8dbd3;
+        }
+        .dropdown-menu.show { display: block; }
+        .rating-stars { display: flex; gap: 4px; font-size: 2rem; flex-direction: row-reverse; justify-content: flex-end; }
+        .star { cursor: pointer; color: #ddd; transition: color 0.2s; user-select: none; }
+        .star.active { color: #ffd700; }
+        .star:hover { color: #ffed4a; }
+        .star:hover ~ .star { color: #ffed4a; }
+        .rating-text { margin-top: 8px; font-weight: 600; color: #4a1022; }
+        .price-slider-container { width: 100%; padding: 10px 0; }
+        .price-slider {
+            width: 100%; -webkit-appearance: none;
+            appearance: none; height: 8px;
+            background: #e8dbd3; border-radius: 10px;
+            outline: none;
+        }
+        .price-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #6c1a30; cursor: pointer;
+            border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .price-value { text-align: center; font-weight: 700; color: #6c1a30; font-size: 1.2rem; margin-top: 10px; }
+        .custom-price-checkbox {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #e8dbd3;
+        }
+        .custom-price-checkbox input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .custom-price-checkbox label { cursor: pointer; font-size: 0.9rem; color: #4a1022; }
+        .location-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+        .location-item { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .location-item:hover { background: #fcf7f3; }
+        .location-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .location-item label { cursor: pointer; flex: 1; }
+        .filter-actions { display: flex; gap: 8px; margin-left: auto; }
+        .filter-btn {
+            padding: 8px 16px; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem;
+        }
+        .filter-btn.apply { background: #6c1a30; color: white; }
+        .filter-btn.apply:hover { background: #4a1022; }
+        .filter-btn.reset { background: #e8dbd3; color: #4a1022; }
+        .filter-btn.reset:hover { background: #d4c5bc; }
+
+        .section { margin-bottom: 56px; scroll-margin-top: 90px; }
+        .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+        .section-header h2 { font-size: 2rem; font-weight: 700; color: #6c1a30; }
+        .section-badge { color: #7e3a4b; font-weight: 500; font-size: 1rem; }
+        .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+        .hidden-cards { display: none; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 22px; }
+        .hidden-cards.show { display: grid; }
+        .simple-card {
+            background: #ffffff; border-radius: 20px;
+            overflow: hidden; box-shadow: 0 6px 18px rgba(108, 26, 48, 0.04);
+            border: 1px solid #f0e4de; cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .simple-card:hover { transform: translateY(-3px); box-shadow: 0 18px 30px -10px rgba(108, 26, 48, 0.1); }
+        .simple-card.filtered-out { display: none; }
+        .simple-card .card-img { width: 100%; height: 200px; background-size: cover; background-position: center; }
+        .simple-card .card-content { padding: 16px; }
+        .simple-card .card-title { font-weight: 700; font-size: 1.2rem; color: #4a1022; margin-bottom: 8px; }
+        .simple-card .card-location { color: #6c757d; font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .simple-card .card-price { font-weight: 700; color: #6c1a30; font-size: 1.1rem; margin-top: 8px; }
+        .stars { color: #ffd700; letter-spacing: 2px; }
+        .rating-badge { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .rating-number { font-weight: 700; color: #4a1022; background: #fff3cd; padding: 4px 8px; border-radius: 6px; font-size: 0.9rem; }
+        .reviews-count { color: #6c757d; font-size: 0.9rem; }
+        .show-more-btn {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; width: 100%; margin-top: 30px;
+            padding: 14px 0; background: transparent;
+            border: 2px dashed #c69c9c; border-radius: 60px;
+            color: #6c1a30; font-weight: 600;
+            font-size: 1.2rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .show-more-btn i { transition: transform 0.25s; }
+        .show-more-btn.expanded i { transform: rotate(180deg); }
+        .show-more-btn:hover { background-color: #eededa; border: 2px solid #b77f7f; }
+        .footer-note {
+            margin-top: 40px; color: #6c1a30;
+            opacity: 0.8; text-align: center;
+            border-top: 1px solid #dbc7c0; padding-top: 24px;
+        }
+        @media (max-width: 1000px) {
+            .card-grid, .hidden-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .card-grid, .hidden-cards { grid-template-columns: 1fr; }
+            .nav-links { gap: 24px; overflow-x: auto; }
+            .filters-container { flex-direction: column; align-items: stretch; }
+            .filter-actions { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h1 class="hero-title">
+            <img src="Pictures/Эмблема.png" alt="Гастротур по Мордовии">
+        </h1>
+
+        <div class="nav-sections">
+            <div class="nav-links">
+                <div class="nav-item active" data-section="gastro">Гастротуры</div>
+                <div class="nav-item" data-section="places">Заведения</div>
+                <div class="nav-item" data-section="fest">Фестивали</div>
+                <div class="nav-item" data-section="recipes">Рецепты</div>
+            </div>
+        </div>
+
+        <div class="filters-container" id="filters-container">
+            <div style="position: relative;">
+                <button class="filter-button" id="rating-btn">
+                    <i class="fas fa-star"></i> Рейтинг <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="rating-dropdown">
+                    <div class="rating-stars" id="rating-stars">
+                        <span class="star" data-rating="5">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="1">★</span>
+                    </div>
+                    <div class="rating-text" id="rating-text">Выберите рейтинг</div>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <button class="filter-button" id="price-btn">
+                    <i class="fas fa-ruble-sign"></i> Цена <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="price-dropdown">
+                    <div class="price-slider-container">
+                        <input type="range" class="price-slider" id="price-slider" 
+                               min="500" max="25000" value="25000" step="500">
+                        <div class="price-value" id="price-value">до 25 000 ₽</div>
+                    </div>
+                    <div class="custom-price-checkbox">
+                        <input type="checkbox" id="custom-price-checkbox">
+                        <label for="custom-price-checkbox">Индивидуальная цена</label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <button class="filter-button" id="location-btn">
+                    <i class="fas fa-map-marker-alt"></i> Местоположение <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="location-dropdown">
+                    <div class="location-list" id="location-list"></div>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="filter-btn apply" id="apply-filters">
+                    <i class="fas fa-check"></i> Применить
+                </button>
+                <button class="filter-btn reset" id="reset-filters">
+                    <i class="fas fa-undo"></i> Сбросить
+                </button>
+            </div>
+        </div>
+
+        <section id="gastro" class="section">
+            <div class="section-header">
+                <h2>Гастротуры</h2>
+                <span class="section-badge" id="results-count"></span>
+            </div>
+            <div class="card-grid" id="gastro-visible-grid"></div>
+            <div class="hidden-cards" id="gastro-hidden-cards"></div>
+            <div class="show-more-btn" id="gastro-show-more">
+                <span>Показать ещё гастротуры</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section id="places" class="section">
+            <div class="section-header">
+                <h2>Заведения</h2>
+                <span class="section-badge" id="places-count"></span>
+            </div>
+            <div class="card-grid" id="places-visible-grid"></div>
+            <div class="hidden-cards" id="places-hidden-cards"></div>
+            <div class="show-more-btn" id="places-show-more">
+                <span>Показать ещё заведения</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section id="fest" class="section">
+            <div class="section-header">
+                <h2>Фестивали</h2>
+                <span class="section-badge" id="fest-count"></span>
+            </div>
+            <div class="card-grid" id="fest-visible-grid"></div>
+            <div class="hidden-cards" id="fest-hidden-cards"></div>
+            <div class="show-more-btn" id="fest-show-more">
+                <span>Показать ещё фестивали</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section id="recipes" class="section">
+            <div class="section-header">
+                <h2>Рецепты мордовской кухни</h2>
+                <span class="section-badge" id="recipes-count"><i class="fas fa-book-open"></i> 15 блюд</span>
+            </div>
+            <div class="card-grid" id="recipes-visible-grid"></div>
+            <div class="hidden-cards" id="recipes-hidden-cards"></div>
+            <div class="show-more-btn" id="recipes-show-more">
+                <span>Показать ещё рецепты</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <div class="footer-note">
+            <i class="fas fa-egg"></i> Гастрономическая Мордовия · Вкус традиций
+        </div>
+    </div>
+
+<script>
+    (function() {
+        const locations = [
+            'Саранск', 'Инсарский', 'Ардатовский', 'Темниковский', 
+            'Теньгушевский', 'Рузаевский', 'Ромодановский', 'Большеберезниковский'
+        ];
+
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalf = rating - fullStars >= 0.5;
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) stars += '★';
+            if (hasHalf) stars += '½';
+            return stars;
+        }
+
+        function generateFullStars(rating) {
+            const fullStars = Math.floor(rating);
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) stars += '★';
+            for (let i = fullStars; i < 5; i++) stars += '☆';
+            return stars;
+        }
+
+        const sampleReviews = [
+            { name: 'Анна Иванова', rating: 5, text: 'Прекрасный гастротур! Очень понравилась дегустация сыров, всё было организовано на высшем уровне. Обязательно вернусь снова!' },
+            { name: 'Сергей Петров', rating: 4, text: 'Хорошая экскурсия, интересный маршрут. Единственное пожелание — добавить больше времени на свободную прогулку.' },
+            { name: 'Мария Смирнова', rating: 5, text: 'Великолепно! Гид рассказал много интересного, еда была потрясающей. Рекомендую всем гурманам!' },
+            { name: 'Дмитрий Кузнецов', rating: 4, text: 'Отличная организация, вкусная еда. Немного устали к концу, но впечатления незабываемые.' },
+            { name: 'Елена Васильева', rating: 5, text: 'Лучший гастрономический опыт! Всё было супер — от встречи до прощания. Медовуха просто божественная!' },
+            { name: 'Алексей Новиков', rating: 3, text: 'Неплохо, но ожидал большего. Программа интересная, но хотелось бы больше дегустаций.' }
+        ];
+
+        function getRandomReviews() {
+            const shuffled = sampleReviews.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, 3);
+        }
+
+        const gastroTours = [
+            { title: 'Сырная Мордовия', images: ['Pictures/produkcija-zavoda-sarmich.jpg', 'Pictures/', 'Pictures/l8B2EEBxhXE_bswQk75yA-ZSlVNZPVCmoUXAvJajQKV2pj0_1dG0OzrVhx_aqIe-msRxBTZwyLB6YgF2bTlN1baH.jpg'], desc: 'Экскурсия на Сыроваренный завод "Сармич"', rating: 4.9, reviews: 9174, price: 0, location: 'Инсарский', customPrice: false,
+                customText: 'Посетите крупнейший сыроваренный завод Мордовии! Вас ждёт экскурсия по производству, дегустация 10 видов сыра и мастер-класс от шеф-сыровара.',
+                customProgram: [
+                    { text: 'Прибытие в Саранск.Встреча с гидом-экскурсоводом.', bullet: true },
+                    { text: 'Обзорная экскурсия по г. Саранск. Экскурсия по исторической части города познакомит с основными достопримечательностями столицы Республики Мордовия:', bullet: true },
+                    { text: '- Площадь Тысячелетия единения мордовского народа с народами российского государства: Фонтан «Звезда Мордовии»; Национальная библиотека им. А.С. Пушкина; Государственный музыкальный театр им. И. М. Яушева.', marginLeft: 40},
+                    { text: '- Соборная площадь: посещение кафедрального собора святого праведного воина Ф. Ушакова; Памятник адмиралу Ф. Ф. Ушакову; Скульптурная группа «Семья», Памятник патриарху Никону.', marginLeft: 40},
+                    { text: '- Площадь Победы: Мемориальный музей военного и трудового подвига; памятный знак «Побег из ада»; памятник воинам-интернационалистам, монумент воинам-уроженцам Мордовии, павшим в годы ВОВ, часовня Александра Невского.', marginLeft: 40},
+                    { text: '- Советская площадь: здания Дома Республики; Дома Советов; Администрации г.о. Саранск; памятник В.И. Ленину; памятник А.С. Пушкину; памятник основателям города.', marginLeft: 40},
+                    { text: '- Парк культуры и отдыха им. А.С. Пушкина, Монумент «Навеки с Россией».', marginLeft: 40},
+                    { text: '- Подъем на смотровую площадку Мордовского государственного университета им. Н.П. Огарева. С самой высокой смотровой площадки Саранска открывается живописный вид: купола храмов, небесная линия города, стадион «Мордовия – Арена». ', marginLeft: 40},
+                    { text: 'Это лучший способ увидеть большое количество достопримечательностей и даже предположить, как изменится столица Мордовии в будущем.'},
+                    { text: 'Обед в кафе города.', bullet: true },   
+                    { text: 'Переезд в г. Инсар.', bullet: true }, 
+                    { text: 'Экскурсия на сыроваренный завод «Сармич». Мордовская земля знаменита сырами! На сегодняшний день «Сармич» является одним из крупнейших предприятий сыроваренной отрасли в России. Предприятие оснащено уникальным оборудованием, на заводе выпускается более 15 наименований твердых и полутвердых сыров, натуральное сливочное масло. Здесь расскажут о производстве, покажут изготовление, упаковку и хранение выпускаемой продукции. Кроме этого, Вы сможете продегустировать различные сорта сыра..', bullet: true }, 
+                    { text: 'Прибытие в Саранск.', bullet: true },
+                    { text: 'Дополнительно при желании оплачиваются завтрак и ужин.' } ,
+                ],
+                customContact: { address: 'Инсарский район, г. Инсар, ул. Строительная, 139', phone: '+7 (8342) 230-030', email: 'veter.str@mail.ru', social: 'https://vk.com/veterstr13' }
+            },
+            { title: 'Мокшанские вечера', images: ['https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/3184183/pexels-photo-3184183.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Погружение в мордовскую кухню.', rating: 4.7, reviews: 5230, price: 0, location: 'Саранск', customPrice: true,
+                customText: 'Проведите незабываемый вечер в этно-усадьбе!',
+                customProgram: [
+                    { text: 'Выезд в этно-усадьбу.', bullet: true },
+                    { text: 'Мастер-класс по лепке пирожков.', bullet: true },
+                    { text: 'Фольклорная программа.', bullet: true },
+                    { text: 'Ужин из 5 блюд.', bullet: true }
+                ],
+                customContact: { address: 'г. Саранск, ул. Этнографическая, 25', phone: '+7 (8342) 450-100', email: 'moksha@mail.ru', social: 'https://vk.com/moksha' }
+            },
+            { title: 'Сыр и Мёд', images: ['https://images.pexels.com/photos/1766682/pexels-photo-1766682.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/2252282/pexels-photo-2252282.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Посещение частной сыроварни и пасеки.', rating: 4.5, reviews: 3200, price: 4200, location: 'Ардатовский', customPrice: false,
+                customText: 'Идеальный тур для гурманов!',
+                customProgram: [
+                    { text: 'Выезд на сыроварню.', bullet: true },
+                    { text: 'Дегустация сыра.', bullet: true },
+                    { text: 'Посещение пасеки.', bullet: true }
+                ],
+                customContact: { address: 'Ардатовский район, с. Баево', phone: '+7 (8342) 670-500', email: 'cheese@mail.ru', social: 'https://vk.com/cheese' }
+            },
+            { title: 'Саранск гастрономический', images: ['https://images.pexels.com/photos/3184183/pexels-photo-3184183.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Прогулка по рынку, мордовские разносолы.', rating: 4.8, reviews: 8925, price: 1800, location: 'Саранск', customPrice: false,
+                customText: 'Гастрономическое приключение по столице!',
+                customProgram: [
+                    { text: 'Посещение рынка.', bullet: true },
+                    { text: 'Обед в кафе.', bullet: true }
+                ],
+                customContact: { address: 'г. Саранск, ул. Советская, 55', phone: '+7 (8342) 300-200', email: 'saransk@mail.ru', social: 'https://vk.com/saransk' }
+            },
+            { title: 'Мордовские пельмени', images: ['https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Мастер-класс по лепке овтонь лапат.', rating: 4.6, reviews: 4500, price: 1200, location: 'Рузаевский', customPrice: false,
+                customText: 'Научитесь готовить традиционные пельмени!',
+                customProgram: [{ text: 'Мастер-класс.', bullet: true }, { text: 'Обед с дегустацией.', bullet: true }],
+                customContact: { address: 'г. Рузаевка, ул. Ленина, 30', phone: '+7 (8342) 890-400', email: 'pelmeni@mail.ru', social: 'https://vk.com/pelmeni' }
+            },
+            { title: 'Яблочный Спас', images: ['https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Экскурсия по садам, пастила и сидр.', rating: 3.8, reviews: 2100, price: 0, location: 'Темниковский', customPrice: true,
+                customText: 'Яблочные сады Мордовии ждут вас!',
+                customProgram: [{ text: 'Поездка в сады.', bullet: true }, { text: 'Дегустация сидра.', bullet: true }],
+                customContact: { address: 'Темниковский район', phone: '+7 (8342) 340-600', email: 'apple@mail.ru', social: 'https://vk.com/apple' }
+            },
+            { title: 'Мордовские настойки', images: ['https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/1721606/pexels-photo-1721606.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Винокурня, дегустация авторских настоек.', rating: 4.2, reviews: 1800, price: 3500, location: 'Теньгушевский', customPrice: false,
+                customText: 'Посетите частную винокурню!',
+                customProgram: [{ text: 'Посещение винокурни.', bullet: true }, { text: 'Дегустация настоек.', bullet: true }],
+                customContact: { address: 'Теньгушевский район', phone: '+7 (8342) 560-700', email: 'nastoyki@mail.ru', social: 'https://vk.com/nastoyki' }
+            },
+            { title: 'Рыбный тур на Суру', images: ['https://images.pexels.com/photos/1267696/pexels-photo-1267696.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/3026806/pexels-photo-3026806.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Уха, копчение и пикник на природе.', rating: 4.1, reviews: 3400, price: 5500, location: 'Большеберезниковский', customPrice: false,
+                customText: 'Рыбалка на живописном берегу!',
+                customProgram: [{ text: 'Рыбалка.', bullet: true }, { text: 'Приготовление ухи.', bullet: true }],
+                customContact: { address: 'Большеберезниковский район', phone: '+7 (8342) 780-900', email: 'fish@mail.ru', social: 'https://vk.com/fish' }
+            },
+            { title: 'Медовый тур', images: ['https://images.pexels.com/photos/2252282/pexels-photo-2252282.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/1721606/pexels-photo-1721606.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Пасека, дегустация медовухи и сот.', rating: 4.3, reviews: 5600, price: 2100, location: 'Теньгушевский', customPrice: false,
+                customText: 'Погрузитесь в мир пчеловодства!',
+                customProgram: [{ text: 'Посещение пасеки.', bullet: true }, { text: 'Чаепитие с мёдом.', bullet: true }],
+                customContact: { address: 'Теньгушевский район', phone: '+7 (8342) 560-800', email: 'honey@mail.ru', social: 'https://vk.com/honey' }
+            },
+            { title: 'Эксклюзивный тур', images: ['https://images.pexels.com/photos/3323680/pexels-photo-3323680.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/3054690/pexels-photo-3054690.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Индивидуальный гастрономический опыт.', rating: 5.0, reviews: 890, price: 0, location: 'Саранск', customPrice: true,
+                customText: 'VIP-тур с персональным гидом.',
+                customProgram: [{ text: 'Закрытые дегустации.', bullet: true }, { text: 'VIP обслуживание.', bullet: true }],
+                customContact: { address: 'г. Саранск', phone: '+7 (8342) 999-000', email: 'vip@mail.ru', social: 'https://vk.com/vip' }
+            },
+            { title: 'Грибное лукошко', images: ['https://images.pexels.com/photos/3054690/pexels-photo-3054690.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/3323680/pexels-photo-3323680.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Поход за грибами с шеф-поваром.', rating: 3.5, reviews: 1200, price: 6500, location: 'Темниковский', customPrice: false,
+                customText: 'Лесная прогулка с профессионалом!',
+                customProgram: [{ text: 'Поход в лес.', bullet: true }, { text: 'Грибной суп на костре.', bullet: true }],
+                customContact: { address: 'Темниковский район', phone: '+7 (8342) 340-700', email: 'griby@mail.ru', social: 'https://vk.com/griby' }
+            },
+            { title: 'Фермерский завтрак', images: ['https://images.pexels.com/photos/784529/pexels-photo-784529.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/3157549/pexels-photo-3157549.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Эко-ферма, парное молоко и сыр.', rating: 4.0, reviews: 2800, price: 8000, location: 'Ардатовский', customPrice: false,
+                customText: 'Утро на эко-ферме!',
+                customProgram: [{ text: 'Дойка коров.', bullet: true }, { text: 'Фермерский завтрак.', bullet: true }],
+                customContact: { address: 'Ардатовский район', phone: '+7 (8342) 670-800', email: 'ferma@mail.ru', social: 'https://vk.com/ferma' }
+            }
+        ];
+
+        const places = [
+            { title: '«Мордовское подворье»', images: ['https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/1267696/pexels-photo-1267696.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Ресторан традиционной кухни.', rating: 4.5, reviews: 2300, price: 1500, location: 'Саранск', customPrice: false, customText: 'Уютный ресторан с аутентичным интерьером.', customProgram: [{ text: 'Пача, овтонь лапат.', bullet: true }], customContact: { address: 'г. Саранск, ул. Советская, 55', phone: '+7 (8342) 300-200', email: 'podvorie@mail.ru', social: 'https://vk.com/podvorie' } },
+            { title: '«Сюлгамо»', images: ['https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/2078058/pexels-photo-2078058.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Пекарня с мордовской выпечкой.', rating: 4.2, reviews: 1800, price: 1200, location: 'Рузаевский', customPrice: false, customText: 'Ароматная выпечка.', customProgram: [{ text: 'Пряники, курник.', bullet: true }], customContact: { address: 'г. Рузаевка, ул. Ленина, 30', phone: '+7 (8342) 890-400', email: 'sulgamo@mail.ru', social: 'https://vk.com/sulgamo' } },
+            { title: '«Поза и Ко»', images: ['https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/2092507/pexels-photo-2092507.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Кафе с мордовским квасом.', rating: 3.9, reviews: 1500, price: 0, location: 'Инсарский', customPrice: true, customText: 'Лучшая поза в городе!', customProgram: [{ text: '5 видов кваса.', bullet: true }], customContact: { address: 'г. Инсар, ул. Центральная, 10', phone: '+7 (8342) 230-500', email: 'poza@mail.ru', social: 'https://vk.com/poza' } },
+            { title: '«Толмар»', images: ['https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600', 'https://images.pexels.com/photos/784529/pexels-photo-784529.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Ресторан авторской кухни.', rating: 4.7, reviews: 3200, price: 2000, location: 'Саранск', customPrice: false, customText: 'Авторское прочтение кухни.', customProgram: [{ text: 'Дегустационные сеты.', bullet: true }], customContact: { address: 'г. Саранск, ул. Пушкина, 20', phone: '+7 (8342) 400-100', email: 'tolmar@mail.ru', social: 'https://vk.com/tolmar' } },
+            { title: '«Эрзянь кудо»', images: ['https://images.pexels.com/photos/3184183/pexels-photo-3184183.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Этнический ресторан.', rating: 4.4, reviews: 2100, price: 1800, location: 'Ардатовский', customPrice: false, customText: 'Блюда по старинным рецептам.', customProgram: [{ text: 'Фольклорные вечера.', bullet: true }], customContact: { address: 'Ардатовский район', phone: '+7 (8342) 670-600', email: 'erzya@mail.ru', social: 'https://vk.com/erzya' } },
+            { title: '«Мокша»', images: ['https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Кухня мокшанских народов.', rating: 3.7, reviews: 980, price: 900, location: 'Темниковский', customPrice: false, customText: 'Домашняя атмосфера.', customProgram: [{ text: 'Семейные рецепты.', bullet: true }], customContact: { address: 'Темниковский район', phone: '+7 (8342) 340-500', email: 'moksha_place@mail.ru', social: 'https://vk.com/moksha_place' } },
+            { title: '«Пряничный дом»', images: ['https://images.pexels.com/photos/2078058/pexels-photo-2078058.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Мастерская пряников.', rating: 4.1, reviews: 1600, price: 0, location: 'Теньгушевский', customPrice: true, customText: 'Распишите свой пряник!', customProgram: [{ text: 'Мастер-классы.', bullet: true }], customContact: { address: 'Теньгушевский район', phone: '+7 (8342) 560-600', email: 'pryaniki@mail.ru', social: 'https://vk.com/pryaniki' } },
+            { title: '«Самовар»', images: ['https://images.pexels.com/photos/1721606/pexels-photo-1721606.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Чайная с травяными сборами.', rating: 3.5, reviews: 750, price: 600, location: 'Ромодановский', customPrice: false, customText: '20 видов чая.', customProgram: [{ text: 'Варенье, мёд.', bullet: true }], customContact: { address: 'Ромодановский район', phone: '+7 (8342) 450-300', email: 'samovar@mail.ru', social: 'https://vk.com/samovar' } },
+            { title: '«Берёзка»', images: ['https://images.pexels.com/photos/3026806/pexels-photo-3026806.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Эко-кафе.', rating: 4.8, reviews: 4500, price: 3000, location: 'Большеберезниковский', customPrice: false, customText: 'Фермерские продукты.', customProgram: [{ text: 'Контактный зоопарк.', bullet: true }], customContact: { address: 'Большеберезниковский район', phone: '+7 (8342) 780-800', email: 'berezka@mail.ru', social: 'https://vk.com/berezka' } },
+            { title: '«Угра»', images: ['https://images.pexels.com/photos/3157549/pexels-photo-3157549.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Столовая с домашней кухней.', rating: 3.3, reviews: 620, price: 800, location: 'Инсарский', customPrice: false, customText: 'Быстро, вкусно, недорого.', customProgram: [{ text: 'Борщ, котлеты.', bullet: true }], customContact: { address: 'г. Инсар', phone: '+7 (8342) 230-600', email: 'ugra@mail.ru', social: 'https://vk.com/ugra' } },
+            { title: '«Сура»', images: ['https://images.pexels.com/photos/1267696/pexels-photo-1267696.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Рыбный ресторан на берегу.', rating: 4.6, reviews: 3800, price: 2500, location: 'Рузаевский', customPrice: false, customText: 'Свежая рыба.', customProgram: [{ text: 'Фирменная уха.', bullet: true }], customContact: { address: 'Рузаевский район', phone: '+7 (8342) 890-500', email: 'sura@mail.ru', social: 'https://vk.com/sura' } },
+            { title: '«Пача»', images: ['https://images.pexels.com/photos/2092507/pexels-photo-2092507.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Блинный дом.', rating: 4.0, reviews: 1400, price: 1100, location: 'Саранск', customPrice: false, customText: '15 видов блинов!', customProgram: [{ text: 'Блинное шоу.', bullet: true }], customContact: { address: 'г. Саранск, ул. Блинная, 5', phone: '+7 (8342) 300-300', email: 'pacha@mail.ru', social: 'https://vk.com/pacha' } }
+        ];
+
+        const festivals = [
+            { title: '«Шумбрат, ярмарка!»', images: ['https://images.pexels.com/photos/1267696/pexels-photo-1267696.jpeg', 'https://images.pexels.com/photos/3323680/pexels-photo-3323680.jpeg'], desc: 'Ярмарка продуктов и ремёсел.', rating: 4.8, reviews: 5000, price: 0, location: 'Саранск', customPrice: true, customText: 'Главная ярмарка года!', customProgram: [{ text: '200 фермеров.', bullet: true }, { text: 'Вход свободный.', bullet: true }], customContact: { address: 'г. Саранск, пл. Тысячелетия', phone: '+7 (8342) 550-000', email: 'yarmarka@mail.ru', social: 'https://vk.com/yarmarka' } },
+            { title: 'Медовый Спас', images: ['https://images.pexels.com/photos/2252282/pexels-photo-2252282.jpeg', 'https://images.pexels.com/photos/1721606/pexels-photo-1721606.jpeg'], desc: 'Праздник мёда.', rating: 4.3, reviews: 3400, price: 500, location: 'Темниковский', customPrice: false, customText: 'Медовая ярмарка.', customProgram: [{ text: 'Конкурс мёда.', bullet: true }], customContact: { address: 'Темниковский район', phone: '+7 (8342) 340-600', email: 'honey_fest@mail.ru', social: 'https://vk.com/honey_fest' } },
+            { title: 'Фестиваль сыра', images: ['https://images.pexels.com/photos/3157549/pexels-photo-3157549.jpeg', 'https://images.pexels.com/photos/821366/pexels-photo-821366.jpeg?auto=compress&cs=tinysrgb&w=600'], desc: 'Дегустация сыров.', rating: 4.6, reviews: 3800, price: 400, location: 'Инсарский', customPrice: false, customText: '30 сыроварен.', customProgram: [{ text: 'Дегустация.', bullet: true }], customContact: { address: 'г. Инсар', phone: '+7 (8342) 230-700', email: 'cheese_fest@mail.ru', social: 'https://vk.com/cheese_fest' } },
+            { title: 'Праздник медовухи', images: ['https://images.pexels.com/photos/1721606/pexels-photo-1721606.jpeg', 'https://images.pexels.com/photos/2252282/pexels-photo-2252282.jpeg'], desc: 'Фестиваль медового напитка.', rating: 4.4, reviews: 3600, price: 700, location: 'Рузаевский', customPrice: false, customText: '10 видов медовухи.', customProgram: [{ text: 'Живая музыка.', bullet: true }], customContact: { address: 'г. Рузаевка', phone: '+7 (8342) 890-600', email: 'medovuha@mail.ru', social: 'https://vk.com/medovuha' } },
+            { title: 'Пивной фестиваль', images: ['https://images.pexels.com/photos/3323680/pexels-photo-3323680.jpeg'], desc: 'Праздник пива на Суре.', rating: 3.7, reviews: 2200, price: 800, location: 'Большеберезниковский', customPrice: false, customText: 'Крафтовое пиво.', customProgram: [{ text: 'Гриль, конкурсы.', bullet: true }], customContact: { address: 'Большеберезниковский район', phone: '+7 (8342) 780-700', email: 'beer@mail.ru', social: 'https://vk.com/beer' } },
+            { title: 'Праздник пирога', images: ['https://images.pexels.com/photos/784529/pexels-photo-784529.jpeg'], desc: 'Конкурс пирогов.', rating: 4.5, reviews: 4100, price: 300, location: 'Ромодановский', customPrice: false, customText: 'Конкурс пирогов.', customProgram: [{ text: 'Призы.', bullet: true }], customContact: { address: 'Ромодановский район', phone: '+7 (8342) 450-400', email: 'pirog@mail.ru', social: 'https://vk.com/pirog' } },
+            { title: '«Тюштянь налксемат»', images: ['https://images.pexels.com/photos/3054690/pexels-photo-3054690.jpeg'], desc: 'Национальные игры.', rating: 4.1, reviews: 2900, price: 600, location: 'Теньгушевский', customPrice: false, customText: 'Стрельба из лука.', customProgram: [{ text: 'Борьба.', bullet: true }], customContact: { address: 'Теньгушевский район', phone: '+7 (8342) 560-700', email: 'games@mail.ru', social: 'https://vk.com/games' } },
+            { title: 'День рыбака на Мокше', images: ['https://images.pexels.com/photos/3026806/pexels-photo-3026806.jpeg'], desc: 'Праздник рыбаков.', rating: 3.8, reviews: 2100, price: 200, location: 'Ардатовский', customPrice: false, customText: 'Уха на костре.', customProgram: [{ text: 'Соревнования.', bullet: true }], customContact: { address: 'Ардатовский район', phone: '+7 (8342) 670-700', email: 'fish_fest@mail.ru', social: 'https://vk.com/fish_fest' } },
+            { title: 'Фестиваль чая', images: ['https://images.pexels.com/photos/2078058/pexels-photo-2078058.jpeg'], desc: 'Травяные сборы.', rating: 3.5, reviews: 1800, price: 250, location: 'Темниковский', customPrice: false, customText: 'Травяные чаи.', customProgram: [{ text: 'Сбор трав.', bullet: true }], customContact: { address: 'Темниковский район', phone: '+7 (8342) 340-800', email: 'tea@mail.ru', social: 'https://vk.com/tea' } }
+        ];
+
+        const recipes = [
+            { title: 'Пача (мордовские блины)', img: 'https://images.pexels.com/photos/2092507/pexels-photo-2092507.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Традиционные блины из пшённой муки.', customText: 'Ингредиенты:\n• Пшённая мука — 2 стакана\n• Яйца — 3 шт.\n• Молоко — 500 мл\n\nПриготовление:\n1. Смешайте муку с яйцами\n2. Влейте молоко\n3. Жарьте на сковороде' },
+            { title: 'Овтонь лапат', img: 'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600', desc: '«Медвежьи лапы» — пирожки с мясом.', customText: 'Ингредиенты:\n• Мука — 500 г\n• Говядина — 400 г\n• Картофель — 3 шт.\n\nПриготовление:\n1. Замесите тесто\n2. Приготовьте начинку\n3. Выпекайте 30 минут' },
+            { title: 'Поза (мордовский квас)', img: 'https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Освежающий напиток из ржаного солода.', customText: 'Ингредиенты:\n• Ржаной солод — 200 г\n• Вода — 3 л\n• Сахар — 100 г\n• Дрожжи — 10 г\n\nПриготовление:\n1. Залейте солод водой\n2. Доведите до кипения\n3. Остудите, добавьте дрожжи\n4. Настаивайте 2 дня' },
+            { title: 'Цебярь шурьба', img: 'https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Наваристый мясной суп с овощами.', customText: 'Ингредиенты:\n• Баранина — 500 г\n• Картофель — 4 шт.\n• Морковь — 2 шт.\n• Лук — 2 шт.\n\nПриготовление:\n1. Сварите бульон\n2. Добавьте овощи\n3. Варите 1,5 часа' },
+            { title: 'Пъяньти', img: 'https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Тушёное мясо с грибами в горшочке.', customText: 'Ингредиенты:\n• Свинина — 400 г\n• Грибы — 200 г\n• Сметана — 200 г\n\nПриготовление:\n1. Обжарьте мясо\n2. Добавьте грибы\n3. Залейте сметаной\n4. Томите 1,5 часа' },
+            { title: 'Медвежья лапа', img: 'https://images.pexels.com/photos/3184183/pexels-photo-3184183.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Большой пирог с мясной начинкой.', customText: 'Ингредиенты:\n• Слоёное тесто — 500 г\n• Мясо — 400 г\n• Грибы — 200 г\n\nПриготовление:\n1. Раскатайте тесто\n2. Выложите начинку\n3. Выпекайте 40 минут' },
+            { title: 'Курник', img: 'https://images.pexels.com/photos/784529/pexels-photo-784529.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Слоёный пирог с курицей и кашей.', customText: 'Ингредиенты:\n• Курица — 500 г\n• Гречка — 200 г\n• Яйца — 3 шт.\n\nПриготовление:\n1. Отварите курицу и гречку\n2. Выложите слоями\n3. Запекайте 35 минут' },
+            { title: 'Сюкорочка', img: 'https://images.pexels.com/photos/2252282/pexels-photo-2252282.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Сладкая выпечка с творогом.', customText: 'Ингредиенты:\n• Творог — 300 г\n• Яйца — 2 шт.\n• Брусника — 100 г\n\nПриготовление:\n1. Смешайте творог с яйцами\n2. Добавьте ягоды\n3. Запекайте 25 минут' },
+            { title: 'Тюря', img: 'https://images.pexels.com/photos/1721606/pexels-photo-1721606.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Холодный суп на квасе.', customText: 'Ингредиенты:\n• Квас — 1 л\n• Редис — 5 шт.\n• Огурец — 2 шт.\n• Зелень\n\nПриготовление:\n1. Нарежьте овощи\n2. Залейте квасом\n3. Подавайте холодным' },
+            { title: 'Салма', img: 'https://images.pexels.com/photos/2078058/pexels-photo-2078058.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Мордовские клёцки в бульоне.', customText: 'Ингредиенты:\n• Мука — 300 г\n• Яйца — 2 шт.\n• Вода — 100 мл\n\nПриготовление:\n1. Замесите тесто\n2. Раскатайте и нарежьте\n3. Варите в бульоне 10 минут' },
+            { title: 'Чапамо ловсо', img: 'https://images.pexels.com/photos/3157549/pexels-photo-3157549.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Кисломолочный напиток.', customText: 'Ингредиенты:\n• Простокваша — 500 мл\n• Укроп — пучок\n• Чеснок — 2 зубчика\n\nПриготовление:\n1. Взбейте простоквашу\n2. Добавьте зелень\n3. Подавайте холодным' },
+            { title: 'Прякат', img: 'https://images.pexels.com/photos/3054690/pexels-photo-3054690.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Открытые пироги с начинками.', customText: 'Ингредиенты:\n• Дрожжевое тесто — 500 г\n• Начинка по вкусу\n\nПриготовление:\n1. Раскатайте тесто\n2. Выложите начинку\n3. Выпекайте 30 минут' },
+            { title: 'Ков атянь пялькс', img: 'https://images.pexels.com/photos/3026806/pexels-photo-3026806.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Каша из пшена с тыквой.', customText: 'Ингредиенты:\n• Пшено — 200 г\n• Тыква — 300 г\n• Молоко — 500 мл\n\nПриготовление:\n1. Нарежьте тыкву\n2. Добавьте пшено и молоко\n3. Варите 40 минут' },
+            { title: 'Каша пуре', img: 'https://images.pexels.com/photos/3323680/pexels-photo-3323680.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Медовая каша на молоке.', customText: 'Ингредиенты:\n• Пшено — 200 г\n• Молоко — 500 мл\n• Мёд — 3 ст.л.\n\nПриготовление:\n1. Сварите пшено в молоке\n2. Добавьте мёд\n3. Томите 1 час' },
+            { title: 'Мокшанский пирог', img: 'https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=600', desc: 'Закрытый пирог с рыбой и рисом.', customText: 'Ингредиенты:\n• Дрожжевое тесто — 500 г\n• Судак — 400 г\n• Рис — 200 г\n\nПриготовление:\n1. Отварите рыбу и рис\n2. Сформируйте пирог\n3. Выпекайте 50 минут' }
+        ];
+
+        let selectedRating = null;
+        let maxPrice = 25000;
+        let customPriceOnly = false;
+        let selectedLocations = [];
+
+        const locationList = document.getElementById('location-list');
+        locations.forEach(function(loc) {
+            const div = document.createElement('div');
+            div.className = 'location-item';
+            div.innerHTML = `<input type="checkbox" id="loc-${loc}" value="${loc}"><label for="loc-${loc}">${loc}</label>`;
+            div.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') { const cb = this.querySelector('input'); cb.checked = !cb.checked; }
+            });
+            locationList.appendChild(div);
+        });
+
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            document.querySelectorAll('.dropdown-menu').forEach(function(d) { if (d.id !== id) d.classList.remove('show'); });
+            dropdown.classList.toggle('show');
+        }
+
+        document.getElementById('rating-btn').addEventListener('click', function(e) { e.stopPropagation(); toggleDropdown('rating-dropdown'); });
+        document.getElementById('price-btn').addEventListener('click', function(e) { e.stopPropagation(); toggleDropdown('price-dropdown'); });
+        document.getElementById('location-btn').addEventListener('click', function(e) { e.stopPropagation(); toggleDropdown('location-dropdown'); });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-menu') && !e.target.closest('.filter-button')) {
+                document.querySelectorAll('.dropdown-menu').forEach(function(d) { d.classList.remove('show'); });
+            }
+        });
+
+        const ratingStars = document.querySelectorAll('#rating-stars .star');
+        const ratingBtn = document.getElementById('rating-btn');
+        const ratingText = document.getElementById('rating-text');
+
+        ratingStars.forEach(function(star) {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                ratingStars.forEach(function(s) { s.classList.toggle('active', parseInt(s.dataset.rating) <= selectedRating); });
+                ratingText.textContent = 'от ' + selectedRating + ' звёзд';
+                ratingBtn.classList.add('has-value');
+            });
+        });
+
+        const priceSlider = document.getElementById('price-slider');
+        const priceValue = document.getElementById('price-value');
+        const priceBtn = document.getElementById('price-btn');
+
+        function updateSliderBackground() {
+            const pct = (maxPrice - 500) / (25000 - 500) * 100;
+            priceSlider.style.background = `linear-gradient(to right, #6c1a30 0%, #6c1a30 ${pct}%, #e8dbd3 ${pct}%, #e8dbd3 100%)`;
+        }
+
+        priceSlider.addEventListener('input', function() {
+            maxPrice = parseInt(this.value);
+            priceValue.textContent = 'до ' + maxPrice.toLocaleString() + ' ₽';
+            updateSliderBackground();
+            priceBtn.classList.add('has-value');
+        });
+
+        document.getElementById('custom-price-checkbox').addEventListener('change', function() {
+            customPriceOnly = this.checked;
+            priceSlider.disabled = this.checked;
+            priceValue.textContent = this.checked ? 'Индивидуальная цена' : 'до ' + maxPrice.toLocaleString() + ' ₽';
+            priceBtn.classList.add('has-value');
+        });
+
+        updateSliderBackground();
+
+        function reflowGrid(visibleGrid, hiddenGrid) {
+            const vg = document.getElementById(visibleGrid);
+            const hg = document.getElementById(hiddenGrid);
+            const allVisible = [];
+            const allHidden = [];
+            vg.querySelectorAll('.simple-card:not(.filtered-out)').forEach(c => allVisible.push(c));
+            hg.querySelectorAll('.simple-card:not(.filtered-out)').forEach(c => allVisible.push(c));
+            vg.querySelectorAll('.simple-card.filtered-out').forEach(c => allHidden.push(c));
+            hg.querySelectorAll('.simple-card.filtered-out').forEach(c => allHidden.push(c));
+            vg.innerHTML = '';
+            hg.innerHTML = '';
+            allVisible.forEach(function(card, index) {
+                if (index < 4) { vg.appendChild(card); } else { hg.appendChild(card); }
+            });
+            allHidden.forEach(function(card) { hg.appendChild(card); });
+            const showMoreBtn = document.getElementById(visibleGrid.replace('visible-grid', 'show-more'));
+            if (showMoreBtn) {
+                showMoreBtn.style.display = allVisible.length <= 4 ? 'none' : 'flex';
+                if (allVisible.length <= 4) hg.classList.remove('show');
+            }
+        }
+
+        function applyFilters() {
+            selectedLocations = [];
+            document.querySelectorAll('#location-list input:checked').forEach(function(cb) { selectedLocations.push(cb.value); });
+            document.getElementById('location-btn').classList.toggle('has-value', selectedLocations.length > 0);
+            document.querySelectorAll('.simple-card[data-rating]').forEach(function(card) {
+                const r = parseFloat(card.dataset.rating), p = parseInt(card.dataset.price), loc = card.dataset.location, isCustom = p === 0;
+                let show = true;
+                if (selectedRating !== null && r < selectedRating) show = false;
+                if (customPriceOnly && !isCustom) show = false;
+                if (!customPriceOnly && !isCustom && p > maxPrice) show = false;
+                if (selectedLocations.length > 0 && !selectedLocations.includes(loc)) show = false;
+                card.classList.toggle('filtered-out', !show);
+            });
+            reflowGrid('gastro-visible-grid', 'gastro-hidden-cards');
+            reflowGrid('places-visible-grid', 'places-hidden-cards');
+            reflowGrid('fest-visible-grid', 'fest-hidden-cards');
+            updateCounts();
+            document.querySelectorAll('.dropdown-menu').forEach(function(d) { d.classList.remove('show'); });
+        }
+
+        function resetFilters() {
+            selectedRating = null; maxPrice = 25000; customPriceOnly = false; selectedLocations = [];
+            ratingStars.forEach(function(s) { s.classList.remove('active'); });
+            ratingText.textContent = 'Выберите рейтинг'; ratingBtn.classList.remove('has-value');
+            priceSlider.value = 25000; priceSlider.disabled = false;
+            priceValue.textContent = 'до 25 000 ₽'; updateSliderBackground();
+            document.getElementById('custom-price-checkbox').checked = false; priceBtn.classList.remove('has-value');
+            document.querySelectorAll('#location-list input').forEach(function(cb) { cb.checked = false; });
+            document.getElementById('location-btn').classList.remove('has-value');
+            document.querySelectorAll('.simple-card[data-rating]').forEach(function(c) { c.classList.remove('filtered-out'); });
+            resetGrid('gastro-visible-grid', 'gastro-hidden-cards', gastroTours);
+            resetGrid('places-visible-grid', 'places-hidden-cards', places);
+            resetGrid('fest-visible-grid', 'fest-hidden-cards', festivals);
+            updateCounts();
+        }
+
+        function resetGrid(visibleGridId, hiddenGridId, data) {
+            const vg = document.getElementById(visibleGridId), hg = document.getElementById(hiddenGridId);
+            const allCards = [];
+            vg.querySelectorAll('.simple-card').forEach(c => allCards.push(c));
+            hg.querySelectorAll('.simple-card').forEach(c => allCards.push(c));
+            vg.innerHTML = ''; hg.innerHTML = '';
+            allCards.forEach(function(card, index) {
+                if (index < 4) { vg.appendChild(card); } else { hg.appendChild(card); }
+            });
+            const showMoreBtn = document.getElementById(visibleGridId.replace('visible-grid', 'show-more'));
+            if (showMoreBtn) showMoreBtn.style.display = allCards.length > 4 ? 'flex' : 'none';
+        }
+
+        function updateCounts() {
+            function cv(s) { return document.querySelectorAll(s).length - document.querySelectorAll(s + '.filtered-out').length; }
+            document.getElementById('results-count').textContent = cv('#gastro-visible-grid .simple-card') + cv('#gastro-hidden-cards .simple-card') + ' / ' + gastroTours.length + ' предложений';
+            document.getElementById('places-count').textContent = cv('#places-visible-grid .simple-card') + cv('#places-hidden-cards .simple-card') + ' / ' + places.length + ' мест';
+            document.getElementById('fest-count').textContent = cv('#fest-visible-grid .simple-card') + cv('#fest-hidden-cards .simple-card') + ' / ' + festivals.length + ' событий';
+        }
+
+        document.getElementById('apply-filters').addEventListener('click', applyFilters);
+        document.getElementById('reset-filters').addEventListener('click', resetFilters);
+
+        function renderCard(item, clickHandler, isRecipe) {
+            const card = document.createElement('div');
+            card.className = 'simple-card';
+            if (clickHandler) card.addEventListener('click', function() { clickHandler(item); });
+            let imgSrc = item.images ? item.images[0] : item.img;
+            if (isRecipe) {
+                card.innerHTML = `<div class="card-img" style="background-image: url('${imgSrc}');"></div><div class="card-content"><div class="card-title">${item.title}</div></div>`;
+            } else {
+                card.innerHTML = `<div class="card-img" style="background-image: url('${imgSrc}');"></div><div class="card-content"><div class="rating-badge"><span class="stars">${generateStars(item.rating)}</span><span class="rating-number">${item.rating}</span><span class="reviews-count">${item.reviews} отзывов</span></div><div class="card-title">${item.title}</div><div class="card-location"><i class="fas fa-map-marker-alt"></i> ${item.location}</div><div class="card-price">${item.price === 0 ? 'Индивидуальная цена' : 'от ' + item.price.toLocaleString() + ' ₽'}</div></div>`;
+                card.dataset.rating = item.rating;
+                card.dataset.price = item.price;
+                card.dataset.location = item.location;
+            }
+            return card;
+        }
+
+        // ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТКРЫТИЯ ОКНА (без Blob) =====
+        function openDetailWindow(item) {
+            const images = item.images || [item.img];
+            const customText = item.customText || '';
+            const program = (item.customProgram && item.customProgram.length > 0) ? item.customProgram : [{ text: 'Программа уточняется.' }];
+            const contact = item.customContact || { address: 'Инсарский район, г. Инсар', phone: '+7 (8342) 230-030', email: 'veter.str@mail.ru', social: 'https://vk.com/veterstr13' };
+            const reviews = getRandomReviews();
+
+            const programHTML = program.map(function(line) {
+                if (typeof line === 'string') line = { text: line };
+                const bulletHTML = line.bullet ? '<span style="color:#c62828;font-weight:bold;margin-right:8px;">•</span>' : '';
+                return `<li style="padding-left:${line.marginLeft||0}px;font-size:${line.fontSize||'1rem'};color:${line.color||'#2c3e50'};${line.bold?'font-weight:bold;':''}">${bulletHTML}${line.text}</li>`;
+            }).join('');
+
+            const reviewsHTML = reviews.map(function(r) {
+                return `<div class="review"><div class="review-header"><span class="review-name">${r.name}</span><span class="review-stars">${generateFullStars(r.rating)}</span></div><p class="review-text">${r.text}</p></div>`;
+            }).join('');
+
+            const slidesHTML = images.map(function(img, i) { return `<div class="carousel-slide${i===0?' active':''}" style="background-image:url('${img}');"></div>`; }).join('');
+            const dotsHTML = images.map(function(img, i) { return `<div class="carousel-dot${i===0?' active':''}" onclick="goToSlide(${i})"></div>`; }).join('');
+
+            const htmlContent = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${item.title}</title><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><style>${getDetailCSS()}</style></head><body><div class="container"><div class="carousel-container"><div class="carousel-slides" id="carousel-slides">${slidesHTML}</div><button class="carousel-btn prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button><button class="carousel-btn next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button><div class="carousel-dots" id="carousel-dots">${dotsHTML}</div><div class="carousel-counter" id="carousel-counter">1 / ${images.length}</div></div><div class="content"><h1>${item.title}</h1><div class="rating-info"><span class="stars">${generateFullStars(item.rating)}</span><span class="rating-number">${item.rating}</span><span class="reviews">${item.reviews} отзывов</span></div><p class="desc">${item.desc||''}</p>${customText?'<div class="custom-text">'+customText+'</div>':''}<div class="price-info">${item.price===0?'Индивидуальная цена':'от '+item.price.toLocaleString()+' ₽'}</div><div class="divider"></div><div class="section-title">Контакты</div><div class="contact-info"><p><i class="fas fa-map-marker-alt"></i><strong>Адрес:</strong> ${contact.address}</p><p><i class="fas fa-phone"></i><strong>Контакты:</strong> ${contact.phone}</p><p><i class="fas fa-envelope"></i><strong>Email:</strong> <a href="mailto:${contact.email}">${contact.email}</a></p><p><i class="fab fa-vk"></i><strong>Соц. сети:</strong> <a href="${contact.social}" target="_blank">${contact.social}</a></p></div><div class="divider"></div><div class="section-title">Программа поездки</div><ul class="program-list">${programHTML}</ul><div class="divider"></div><div class="section-title">Отзывы</div><div class="reviews-list">${reviewsHTML}</div><div class="add-review"><div class="section-title">Оставить отзыв</div><textarea class="review-textarea" placeholder="Напишите ваш отзыв..."></textarea><div class="review-rating"><span>Оценка:</span><span class="review-stars-input" id="review-stars-input"><span class="star-input" data-rating="1">☆</span><span class="star-input" data-rating="2">☆</span><span class="star-input" data-rating="3">☆</span><span class="star-input" data-rating="4">☆</span><span class="star-input" data-rating="5">☆</span></span></div><button class="submit-review" onclick="submitReview()">Отправить отзыв</button></div><a href="javascript:window.close()" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться на страницу</a></div></div><script>${getCarouselScript(images.length)}<\/script></body></html>`;
+
+            // Вместо Blob используем document.write
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(htmlContent);
+            newWindow.document.close();
+        }
+
+        function openRecipeWindow(item) {
+            const imgSrc = item.img;
+            const customText = item.customText || '';
+            const htmlContent = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>${item.title}</title><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#fcf7f3;padding:40px 20px}.container{max-width:900px;margin:0 auto;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08)}.recipe-img{width:100%;height:400px;background-size:cover;background-position:center}.content{padding:32px 40px 40px}h1{font-size:2.5rem;font-weight:700;color:#4a1022;margin-bottom:16px}.desc{font-size:1.1rem;color:#4b5563;margin-bottom:24px}.recipe-text{background:#fcf7f3;padding:24px;border-radius:12px;margin-bottom:24px;border-left:4px solid #c62828;line-height:1.8;white-space:pre-line}.back-link{display:inline-block;margin-top:24px;color:#6c1a30;text-decoration:none;font-weight:500;cursor:pointer}.back-link:hover{color:#c62828}</style></head><body><div class="container"><div class="recipe-img" style="background-image:url('${imgSrc}');"></div><div class="content"><h1>${item.title}</h1><p class="desc">${item.desc||''}</p>${customText?'<div class="recipe-text"><strong>📝 Ингредиенты и приготовление:</strong><br><br>'+customText+'</div>':''}<a href="javascript:window.close()" class="back-link">← Вернуться на страницу</a></div></div></body></html>`;
+
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(htmlContent);
+            newWindow.document.close();
+        }
+
+        function getDetailCSS() {
+            return `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#fcf7f3;padding:40px 20px;color:#1e1e2a;line-height:1.6}.container{max-width:900px;margin:0 auto;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08)}.carousel-container{position:relative;width:100%;height:400px;overflow:hidden}.carousel-slides{display:flex;transition:transform 0.5s;height:100%}.carousel-slide{min-width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#000}.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.9);border:none;width:50px;height:50px;border-radius:50%;cursor:pointer;font-size:1.5rem;color:#6c1a30;display:flex;align-items:center;justify-content:center;z-index:10}.carousel-btn.prev{left:20px}.carousel-btn.next{right:20px}.carousel-dots{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10}.carousel-dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.6);border:2px solid #6c1a30;cursor:pointer}.carousel-dot.active{background:#6c1a30}.carousel-counter{position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.6);color:#fff;padding:6px 12px;border-radius:20px;font-size:0.9rem;z-index:10}.content{padding:32px 40px 40px}h1{font-size:2.5rem;font-weight:700;color:#4a1022;margin-bottom:16px}.rating-info{display:flex;align-items:center;gap:12px;margin-bottom:20px}.stars{color:#ffd700;font-size:1.5rem;letter-spacing:4px}.rating-number{font-weight:700;color:#4a1022;background:#fff3cd;padding:4px 10px;border-radius:6px}.reviews{color:#6c757d}.desc{font-size:1.1rem;color:#4b5563;margin-bottom:24px}.custom-text{background:#fcf7f3;padding:20px;border-radius:12px;margin-bottom:24px;font-size:1.05rem;color:#2c3e50;border-left:4px solid #6c1a30}.divider{height:2px;background:#e5e7eb;margin:24px 0}.section-title{font-weight:700;font-size:1.2rem;text-transform:uppercase;letter-spacing:0.5px;color:#374151;margin-bottom:16px}.contact-info{margin-bottom:20px}.contact-info p{margin-bottom:8px;display:flex;align-items:center;gap:8px}.contact-info i{width:20px;color:#6c1a30}.program-list{list-style:none;padding:0}.program-list li{padding:8px 0;border-bottom:1px solid #f0f0f0}.reviews-list{margin-bottom:24px}.review{background:#fcf7f3;padding:16px;border-radius:12px;margin-bottom:12px}.review-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}.review-name{font-weight:700;color:#4a1022}.review-stars{color:#ffd700;letter-spacing:2px}.review-text{font-size:0.95rem;color:#4b5563;line-height:1.5}.add-review{background:#fff;padding:20px;border-radius:12px;border:1px solid #e8dbd3}.review-textarea{width:100%;min-height:100px;padding:12px;border:1px solid #e8dbd3;border-radius:8px;font-family:'Inter',sans-serif;font-size:1rem;resize:vertical;margin-bottom:12px}.review-rating{display:flex;align-items:center;gap:12px;margin-bottom:12px}.review-stars-input .star-input{cursor:pointer;font-size:1.5rem;color:#ddd;transition:color 0.2s;user-select:none}.review-stars-input .star-input.active{color:#ffd700}.submit-review{background:#6c1a30;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.3s}.submit-review:hover{background:#4a1022}.back-link{display:inline-block;margin-top:24px;color:#6c1a30;text-decoration:none;font-weight:500;cursor:pointer}.back-link:hover{color:#c62828}.price-info{font-weight:700;font-size:1.3rem;color:#6c1a30;margin-bottom:20px}`;
+        }
+
+        function getCarouselScript(totalSlides) {
+            return `let currentSlide=0;const totalSlides=${totalSlides};const slides=document.getElementById('carousel-slides');const dots=document.querySelectorAll('.carousel-dot');const counter=document.getElementById('carousel-counter');function updateCarousel(){slides.style.transform='translateX(-'+(currentSlide*100)+'%)';dots.forEach(function(d,i){d.classList.toggle('active',i===currentSlide)});counter.textContent=(currentSlide+1)+' / '+totalSlides}function changeSlide(d){currentSlide+=d;if(currentSlide>=totalSlides)currentSlide=0;if(currentSlide<0)currentSlide=totalSlides-1;updateCarousel()}function goToSlide(i){currentSlide=i;updateCarousel()}setInterval(function(){changeSlide(1)},5000);let touchStartX=0;slides.addEventListener('touchstart',function(e){touchStartX=e.changedTouches[0].screenX});slides.addEventListener('touchend',function(e){const diff=touchStartX-e.changedTouches[0].screenX;if(Math.abs(diff)>50)changeSlide(diff>0?1:-1)});document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')changeSlide(-1);if(e.key==='ArrowRight')changeSlide(1)});let selectedReviewRating=0;document.querySelectorAll('.star-input').forEach(function(s){s.addEventListener('click',function(){selectedReviewRating=parseInt(this.dataset.rating);document.querySelectorAll('.star-input').forEach(function(st,i){st.textContent=i<selectedReviewRating?'★':'☆';st.classList.toggle('active',i<selectedReviewRating)})})});function submitReview(){const text=document.querySelector('.review-textarea').value.trim();if(!text){alert('Напишите отзыв!');return}if(selectedReviewRating===0){alert('Поставьте оценку!');return}const reviewsList=document.querySelector('.reviews-list');const starsHTML='★'.repeat(selectedReviewRating)+'☆'.repeat(5-selectedReviewRating);reviewsList.insertAdjacentHTML('afterbegin','<div class="review"><div class="review-header"><span class="review-name">Вы</span><span class="review-stars">'+starsHTML+'</span></div><p class="review-text">'+text+'</p></div>');document.querySelector('.review-textarea').value='';selectedReviewRating=0;document.querySelectorAll('.star-input').forEach(function(s){s.textContent='☆';s.classList.remove('active')})}`;
+        }
+
+        function fillSection(vg, hg, data, isRecipe) {
+            const v = document.getElementById(vg), h = document.getElementById(hg);
+            const handler = isRecipe ? openRecipeWindow : openDetailWindow;
+            data.forEach(function(item, i) {
+                const card = renderCard(item, handler, isRecipe);
+                (i < 4 ? v : h).appendChild(card);
+            });
+        }
+
+        fillSection('gastro-visible-grid', 'gastro-hidden-cards', gastroTours, false);
+        fillSection('places-visible-grid', 'places-hidden-cards', places, false);
+        fillSection('fest-visible-grid', 'fest-hidden-cards', festivals, false);
+        fillSection('recipes-visible-grid', 'recipes-hidden-cards', recipes, true);
+
+        function setupShowMore(b, h) {
+            const btn = document.getElementById(b), hid = document.getElementById(h), sp = btn.querySelector('span'), ot = sp.textContent;
+            btn.addEventListener('click', function() {
+                hid.classList.toggle('show');
+                btn.classList.toggle('expanded');
+                sp.textContent = hid.classList.contains('show') ? 'Скрыть' : ot;
+            });
+        }
+
+        setupShowMore('gastro-show-more', 'gastro-hidden-cards');
+        setupShowMore('places-show-more', 'places-hidden-cards');
+        setupShowMore('fest-show-more', 'fest-hidden-cards');
+        setupShowMore('recipes-show-more', 'recipes-hidden-cards');
+
+        updateCounts();
+
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = { gastro: document.getElementById('gastro'), places: document.getElementById('places'), fest: document.getElementById('fest'), recipes: document.getElementById('recipes') };
+        
+        navItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                const id = this.dataset.section;
+                sections[id].scrollIntoView({ behavior: 'smooth' });
+                navItems.forEach(function(i) { i.classList.toggle('active', i.dataset.section === id); });
+            });
+        });
+        
+        const obs = new IntersectionObserver(function(entries) { 
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    navItems.forEach(function(i) { i.classList.toggle('active', i.dataset.section === entry.target.id); });
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        Object.values(sections).forEach(function(section) { obs.observe(section); });
+    })();
+</script>
+</body>
+</html>
